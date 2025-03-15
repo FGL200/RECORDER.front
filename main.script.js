@@ -1,7 +1,7 @@
 export class Helper {
 
   static isProduction() {
-    return true;
+    return false;
   }
 
   static getEnvironment(production = false) {
