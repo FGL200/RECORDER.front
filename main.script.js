@@ -1,12 +1,12 @@
 export class Helper {
 
   static isProduction() {
-    return false;
+    return true;
   }
 
   static getEnvironment(production = false) {
     if (production) return {
-      API_URL: 'http://frecords.infinityfreeapp.com',
+      API_URL: 'https://frecords.infinityfreeapp.com',
     }
     else return {
       API_URL: 'http://localhost/RECORDER.back',
