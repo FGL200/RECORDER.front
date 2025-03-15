@@ -25,12 +25,13 @@ import { Helper } from "./main.script.js";
     Helper.waitHandler.newRequest();
     const response = await Helper.apiRequest(`${env.API_URL}/login`, 'POST', data).finally(() => Helper.waitHandler.finishRequest());
     Helper.waitHandler.finishRequest();
+    console.log({ response })
 
     if (response.error) {
       Helper.setPromtError("prompt-error", response.error);
     } else {
-      Helper.storage.set("email", data.email);
-      Helper.goto("./home.html");
+      // Helper.storage.set("email", data.email);
+      // Helper.goto("./home.html");
     }
   });
 
