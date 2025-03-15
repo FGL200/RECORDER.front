@@ -3,9 +3,16 @@ import { Helper } from "./main.script.js";
 (async () => {
   const env = Helper.getEnvironment(Helper.isProduction());
 
+  if (Helper.storage.get("email")) Helper.goto("./home.html");
+
+  if (Helper.storage.get("newlyRegistered")) {
+    Helper.storage.remove("newlyRegistered");
+    Helper.getById("prompt-success").classList.remove("d-none");
+  }
+
   Helper.getById("register-button").addEventListener("click", () => Helper.goto("./register.html"));
 
-  Helper.getById("login-form").addEventListener("submit", function (e) {
+  Helper.getById("login-form").addEventListener("submit", async function (e) {
     e.preventDefault();
     const data = Helper.getDataFromForm("login-form");
 
@@ -15,13 +22,16 @@ import { Helper } from "./main.script.js";
     }
     Helper.getById("prompt-error").classList.add("d-none");
 
-    Helper.storage.set("username", data.username);
     Helper.waitHandler.newRequest();
+    const response = await Helper.apiRequest(`${env.API_URL}/login`, 'POST', data).finally(() => Helper.waitHandler.finishRequest());
+    Helper.waitHandler.finishRequest();
 
-    setTimeout(() => {
-      Helper.waitHandler.finishRequest();
+    if (response.error) {
+      Helper.setPromtError("prompt-error", response.error);
+    } else {
+      Helper.storage.set("email", data.email);
       Helper.goto("./home.html");
-    }, 2000);
+    }
   });
 
   Helper.waitHandler.setOnNewRequestCallback(() => {

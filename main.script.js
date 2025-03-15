@@ -109,22 +109,51 @@ export class Helper {
   }
 
   static apiRequest = async (url = "", method = "GET", data = {}) => {
-    return await fetch(url, {
-      method,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: data ? JSON.stringify(data) : undefined,
+    const fetchApi = method === 'GET' ?
+      fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }) :
+      fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams(data).toString(),
+      });
+
+    return await fetchApi.then(async response => {
+      if (!response.ok) {
+        return response.text().then(text => JSON.parse(text));
+      };
+
+      return response.json();
     })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
+      .then(data => {
+        if (data.error) console.error(data.error);
+        return data;
       })
       .catch(error => {
         console.error('Fetch error:', error);
       });
+  }
+
+  static errorMessages = {
+    required: "Please fill out required fields.",
+    invalid: "Please check for invalid fields.",
+    serverError: "Server error. Please try again later.",
+  }
+
+  static setPromtError(promt_id = "", message = "") {
+    const promt = Helper.getById(promt_id);
+    if (promt) {
+      promt.textContent = message;
+      promt.classList.remove("d-none");
+      setTimeout(() => promt.classList.add("d-none"), 2000);
+    }
+
   }
 
 }

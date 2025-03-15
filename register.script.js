@@ -3,9 +3,11 @@ import { Helper } from "./main.script.js";
 (async () => {
   const env = Helper.getEnvironment(Helper.isProduction());
 
+  if (Helper.storage.get("email")) Helper.goto("./home.html");
+
   Helper.getById("login-button").addEventListener("click", () => Helper.goto("./login.html"));
 
-  Helper.getById("register-form").addEventListener("submit", function (e) {
+  Helper.getById("register-form").addEventListener("submit", async function (e) {
     e.preventDefault();
     const data = Helper.getDataFromForm("register-form");
 
@@ -15,13 +17,16 @@ import { Helper } from "./main.script.js";
     }
     Helper.getById("prompt-error").classList.add("d-none");
 
-    Helper.storage.set("username", data.username);
     Helper.waitHandler.newRequest();
+    const response = await Helper.apiRequest(`${env.API_URL}/register/user`, 'POST', data).finally(() => Helper.waitHandler.finishRequest());
+    Helper.waitHandler.finishRequest();
 
-    setTimeout(() => {
-      Helper.waitHandler.finishRequest();
+    if (response.error) {
+      Helper.setPromtError("prompt-error", response.error);
+    } else {
+      Helper.storage.set("newlyRegistered", true);
       Helper.goto("./login.html");
-    }, 2000);
+    }
   });
 
   Helper.waitHandler.setOnNewRequestCallback(() => {
