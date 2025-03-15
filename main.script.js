@@ -6,7 +6,7 @@ export class Helper {
 
   static getEnvironment(production = false) {
     if (production) return {
-      API_URL: 'https://localhost',
+      API_URL: 'http://frecords.infinityfreeapp.com',
     }
     else return {
       API_URL: 'http://localhost/RECORDER.back',
@@ -137,6 +137,7 @@ export class Helper {
       })
       .catch(error => {
         console.error('Fetch error:', error);
+        return { error: Helper.errorMessages.serverError };
       });
   }
 
